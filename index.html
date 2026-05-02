@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ristorante & Pizzeria NOME DEL LOCALE</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#f4f1ee;color:#333}
+
+header{background:#222;color:#fff;text-align:center;padding:80px 20px}
+header h1{color:#f1c40f;margin:0}
+
+nav{background:#fff;padding:10px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+nav a{margin:0 10px;color:#e74c3c;text-decoration:none;font-weight:600}
+
+.container{max-width:1000px;margin:auto;padding:20px}
+
+.section{background:#fff;margin-bottom:20px;padding:20px;border-radius:12px}
+.section h2{color:#e74c3c}
+
+.menu-item{
+ display:flex;
+ justify-content:space-between;
+ padding:12px 0;
+ border-bottom:1px dashed #ddd;
+ cursor:pointer;
+}
+
+/* BADGE */
+.badge{
+ position:fixed;
+ top:15px;
+ right:15px;
+ background:#e74c3c;
+ color:#fff;
+ padding:10px 14px;
+ border-radius:20px;
+ cursor:pointer;
+ z-index:200;
+}
+
+/* OVERLAY */
+#overlay{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,0.5);
+ display:none;
+ z-index:99;
+}
+
+/* CARRELLO SLIDE */
+#cartBox{
+ position:fixed;
+ top:0;
+ right:-300px;
+ width:300px;
+ height:100%;
+ background:#fff;
+ padding:20px;
+ box-shadow:-5px 0 20px rgba(0,0,0,0.2);
+ transition:0.3s;
+ z-index:100;
+ display:flex;
+ flex-direction:column;
+}
+
+#cartBox.active{
+ right:0;
+}
+
+#cart-items{
+ flex:1;
+ overflow:auto;
+ list-style:none;
+ padding:0;
+}
+
+.cart-item{
+ display:flex;
+ justify-content:space-between;
+ margin-bottom:10px;
+}
+
+.qty-controls{
+ display:flex;
+ gap:5px;
+}
+
+.qty-btn{
+ background:#e74c3c;
+ color:#fff;
+ border:none;
+ width:25px;
+ height:25px;
+ border-radius:6px;
+ cursor:pointer;
+}
+
+button{
+ margin-top:8px;
+ padding:10px;
+ border:none;
+ border-radius:8px;
+ cursor:pointer;
+}
+
+.clear{background:#ccc}
+.confirm{background:#e74c3c;color:#fff}
+
+footer{text-align:center;padding:20px;background:#222;color:#fff}
+</style>
+</head>
+
+<body>
+
+<div class="badge" id="cart-count" onclick="toggleCart()">0 🛒</div>
+<div id="overlay" onclick="toggleCart()"></div>
+
+<header>
+<h1>🍕 NOME DEL LOCALE</h1>
+<p>Tradizione Italiana</p>
+</header>
+
+<nav>
+<a href="#antipasti">Antipasti</a>
+<a href="#pizze">Pizze</a>
+<a href="#primi">Primi</a>
+<a href="#bevande">Bevande</a>
+</nav>
+
+<div class="container">
+
+<div class="section" id="antipasti">
+<h2>Antipasti</h2>
+<div class="menu-item" onclick="addToCart('Bruschette',6)">Bruschette <span>€6</span></div>
+<div class="menu-item" onclick="addToCart('Tagliere',12)">Tagliere <span>€12</span></div>
+</div>
+
+<div class="section" id="pizze">
+<h2>Pizze</h2>
+<div class="menu-item" onclick="addToCart('Margherita',7)">Margherita <span>€7</span></div>
+<div class="menu-item" onclick="addToCart('Diavola',9)">Diavola <span>€9</span></div>
+</div>
+
+<div class="section" id="primi">
+<h2>Primi</h2>
+<div class="menu-item" onclick="addToCart('Carbonara',10)">Carbonara <span>€10</span></div>
+</div>
+
+<div class="section" id="bevande">
+<h2>Bevande</h2>
+<div class="menu-item" onclick="addToCart('Birra',5)">Birra <span>€5</span></div>
+</div>
+
+</div>
+
+<!-- CARRELLO -->
+<div id="cartBox">
+<h3>🛒 Il tuo ordine</h3>
+<ul id="cart-items"></ul>
+<div id="total">Totale: €0</div>
+<button class="clear" onclick="clearCart()">Svuota</button>
+<button class="confirm" onclick="confirmOrder()">Conferma</button>
+</div>
+
+<footer>📍 Catanzaro</footer>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+function toggleCart(){
+  const cartBox = document.getElementById('cartBox');
+  const overlay = document.getElementById('overlay');
+
+  cartBox.classList.toggle('active');
+
+  if(cartBox.classList.contains('active')){
+    overlay.style.display = 'block';
+  } else {
+    overlay.style.display = 'none';
+  }
+}
+
+function addToCart(name, price){
+  const existing = cart.find(i => i.name === name);
+  if(existing){
+    existing.qty++;
+  } else {
+    cart.push({name, price, qty:1});
+  }
+  saveCart();
+  updateCart();
+}
+
+function updateCart(){
+  const list = document.getElementById('cart-items');
+  list.innerHTML = '';
+  let total = 0;
+  let count = 0;
+
+  cart.forEach((item, i)=>{
+    total += item.price * item.qty;
+    count += item.qty;
+
+    const li = document.createElement('li');
+    li.className = 'cart-item';
+
+    li.innerHTML = `
+      <span>${item.name}</span>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="changeQty(${i},-1)">-</button>
+        <span>${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+      </div>
+    `;
+
+    list.appendChild(li);
+  });
+
+  document.getElementById('total').innerText = "Totale: €" + total;
+  document.getElementById('cart-count').innerText = count + " 🛒";
+}
+
+function changeQty(i, delta){
+  cart[i].qty += delta;
+  if(cart[i].qty <= 0) cart.splice(i,1);
+  saveCart();
+  updateCart();
+}
+
+function saveCart(){
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function clearCart(){
+  cart=[];
+  saveCart();
+  updateCart();
+}
+
+function confirmOrder(){
+  if(cart.length === 0){
+    alert("Carrello vuoto");
+    return;
+  }
+
+  let text="Ordine:\n";
+  let total=0;
+
+  cart.forEach(item=>{
+    text += `${item.name} x${item.qty} €${item.price*item.qty}\n`;
+    total += item.price*item.qty;
+  });
+
+  text += "Totale: €"+total;
+  alert(text);
+}
+
+updateCart();
+</script>
+
+</body>
+</html>
