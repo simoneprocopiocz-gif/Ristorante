@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ristorante NOME DEL RISTORANTE</title>
+<title>Ristorante NOME DEL LOCALE</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -12,7 +12,7 @@ body{
  margin:0;
  font-family:'Poppins',sans-serif;
  background:#f4f1ee;
- overflow-x:hidden; /* evita scroll laterale */
+ overflow-x:hidden;
 }
 
 /* HEADER */
@@ -87,7 +87,6 @@ nav a{
  border-radius:20px;
  z-index:200;
  cursor:pointer;
- font-size:14px;
 }
 
 /* OVERLAY */
@@ -99,28 +98,22 @@ nav a{
  z-index:90;
 }
 
-/* CARRELLO (FIX DEFINITIVO) */
+/* CARRELLO */
 #cartBox{
  position:fixed;
  top:0;
- right:0;
- width:100%;
- max-width:320px;
- height:100%;
+ left:0;
+ width:100vw;
+ height:100vh;
  background:#fff;
  padding:20px 15px;
  transform:translateX(100%);
- transition:0.3s ease;
+ transition:transform 0.3s ease;
  z-index:100;
  display:flex;
  flex-direction:column;
-}
-
-/* MOBILE FULL SCREEN */
-@media(max-width:768px){
- #cartBox{
-  max-width:100%;
- }
+ box-sizing:border-box;
+ touch-action:pan-y;
 }
 
 #cartBox.active{
@@ -135,7 +128,7 @@ nav a{
  padding:0;
 }
 
-/* ITEM CARRELLO */
+/* ITEM */
 .cart-item{
  display:flex;
  justify-content:space-between;
@@ -153,7 +146,6 @@ nav a{
 .qty-controls{
  display:flex;
  gap:5px;
- flex-shrink:0;
 }
 
 .qty-btn{
@@ -163,10 +155,9 @@ nav a{
  width:26px;
  height:26px;
  border-radius:6px;
- font-weight:bold;
 }
 
-/* BUTTONS */
+/* BUTTON */
 button{
  padding:10px;
  border:none;
@@ -177,7 +168,6 @@ button{
 .clear{background:#ccc}
 .confirm{background:#e74c3c;color:#fff}
 
-/* FOOTER */
 footer{
  text-align:center;
  padding:15px;
@@ -190,10 +180,10 @@ footer{
 <body>
 
 <div class="badge" id="cart-count" onclick="toggleCart()">0 🛒</div>
-<div id="overlay" onclick="toggleCart()"></div>
+<div id="overlay" onclick="closeCart()"></div>
 
 <header>
-<h1>🍕 NOME DEL RISTORANTE</h1>
+<h1>🍕 NOME DEL LOCALE</h1>
 <p>Tradizione Italiana</p>
 </header>
 
@@ -206,34 +196,28 @@ footer{
 
 <div class="container">
 
-<div class="section" id="antipasti">
+<div class="section">
 <h2>Antipasti</h2>
 <div class="menu-item" onclick="addToCart('Bruschette',6)">Bruschette <span>€6</span></div>
 <div class="menu-item" onclick="addToCart('Tagliere',12)">Tagliere <span>€12</span></div>
 </div>
 
-<div class="section" id="pizze">
+<div class="section">
 <h2>Pizze</h2>
 <div class="menu-item" onclick="addToCart('Margherita',7)">Margherita <span>€7</span></div>
 <div class="menu-item" onclick="addToCart('Diavola',9)">Diavola <span>€9</span></div>
-<div class="menu-item" onclick="addToCart('Bufalina',11)">Bufalina <span>€11</span></div>
 </div>
 
-<div class="section" id="primi">
+<div class="section">
 <h2>Primi</h2>
 <div class="menu-item" onclick="addToCart('Carbonara',10)">Carbonara <span>€10</span></div>
-</div>
-
-<div class="section" id="bevande">
-<h2>Bevande</h2>
-<div class="menu-item" onclick="addToCart('Birra',5)">Birra <span>€5</span></div>
 </div>
 
 </div>
 
 <!-- CARRELLO -->
 <div id="cartBox">
-<h3 style="text-align:center;">🛒 Il tuo ordine</h3>
+<h3>🛒 Il tuo ordine</h3>
 <ul id="cart-items"></ul>
 <div id="total">Totale: €0</div>
 <button class="clear" onclick="clearCart()">Svuota</button>
@@ -245,60 +229,76 @@ footer{
 <script>
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-function toggleCart(){
- const cartBox = document.getElementById('cartBox');
- const overlay = document.getElementById('overlay');
+const cartBox = document.getElementById('cartBox');
+const overlay = document.getElementById('overlay');
 
- cartBox.classList.toggle('active');
- overlay.style.display = cartBox.classList.contains('active') ? 'block' : 'none';
+/* OPEN / CLOSE */
+function openCart(){
+ cartBox.classList.add('active');
+ overlay.style.display='block';
+ cartBox.style.transform="translateX(0)";
 }
 
+function closeCart(){
+ cartBox.classList.remove('active');
+ overlay.style.display='none';
+ cartBox.style.transform="translateX(100%)";
+}
+
+function toggleCart(){
+ if(cartBox.classList.contains('active')){
+  closeCart();
+ } else {
+  openCart();
+ }
+}
+
+/* CART */
 function addToCart(name, price){
- const existing = cart.find(i => i.name === name);
+ const existing = cart.find(i=>i.name===name);
  if(existing){existing.qty++;}
- else{cart.push({name, price, qty:1});}
+ else{cart.push({name,price,qty:1});}
  saveCart();
  updateCart();
 }
 
 function updateCart(){
  const list = document.getElementById('cart-items');
- list.innerHTML = '';
- let total = 0;
- let count = 0;
+ list.innerHTML='';
+ let total=0,count=0;
 
- cart.forEach((item, i)=>{
-  total += item.price * item.qty;
-  count += item.qty;
+ cart.forEach((item,i)=>{
+  total+=item.price*item.qty;
+  count+=item.qty;
 
-  const li = document.createElement('li');
-  li.className = 'cart-item';
+  const li=document.createElement('li');
+  li.className='cart-item';
 
-  li.innerHTML = `
+  li.innerHTML=`
     <span>${item.name}</span>
     <div class="qty-controls">
-      <button class="qty-btn" onclick="changeQty(${i},-1)">-</button>
+      <button onclick="changeQty(${i},-1)">-</button>
       <span>${item.qty}</span>
-      <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+      <button onclick="changeQty(${i},1)">+</button>
     </div>
   `;
 
   list.appendChild(li);
  });
 
- document.getElementById('total').innerText = "Totale: €" + total;
- document.getElementById('cart-count').innerText = count + " 🛒";
+ document.getElementById('total').innerText="Totale: €"+total;
+ document.getElementById('cart-count').innerText=count+" 🛒";
 }
 
-function changeQty(i, delta){
- cart[i].qty += delta;
- if(cart[i].qty <= 0) cart.splice(i,1);
+function changeQty(i,d){
+ cart[i].qty+=d;
+ if(cart[i].qty<=0) cart.splice(i,1);
  saveCart();
  updateCart();
 }
 
 function saveCart(){
- localStorage.setItem('cart', JSON.stringify(cart));
+ localStorage.setItem('cart',JSON.stringify(cart));
 }
 
 function clearCart(){
@@ -308,22 +308,42 @@ function clearCart(){
 }
 
 function confirmOrder(){
- if(cart.length === 0){
-  alert("Carrello vuoto");
-  return;
- }
-
- let text="Ordine:\n";
- let total=0;
-
- cart.forEach(item=>{
-  text += `${item.name} x${item.qty} €${item.price*item.qty}\n`;
-  total += item.price*item.qty;
- });
-
- text += "Totale: €"+total;
- alert(text);
+ if(cart.length===0){alert("Carrello vuoto");return;}
+ alert("Ordine confermato!");
 }
+
+/* SWIPE */
+let startX=0;
+let currentX=0;
+let dragging=false;
+
+cartBox.addEventListener("touchstart",(e)=>{
+ startX=e.touches[0].clientX;
+ dragging=true;
+});
+
+cartBox.addEventListener("touchmove",(e)=>{
+ if(!dragging) return;
+
+ currentX=e.touches[0].clientX;
+ let diff=currentX-startX;
+
+ if(diff>0){
+   cartBox.style.transform=`translateX(${diff}px)`;
+ }
+});
+
+cartBox.addEventListener("touchend",()=>{
+ dragging=false;
+
+ let diff=currentX-startX;
+
+ if(diff>120){
+   closeCart();
+ } else {
+   cartBox.style.transform="translateX(0)";
+ }
+});
 
 updateCart();
 </script>
