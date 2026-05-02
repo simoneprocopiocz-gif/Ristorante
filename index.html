@@ -3,43 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ristorante & Pizzeria NOME DEL LOCALE</title>
+<title>Ristorante Capasso</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-body{margin:0;font-family:'Poppins',sans-serif;background:#f4f1ee;color:#333}
+body{
+ margin:0;
+ font-family:'Poppins',sans-serif;
+ background:#f4f1ee;
+}
 
-header{background:#222;color:#fff;text-align:center;padding:80px 20px}
+/* HEADER */
+header{
+ background:#222;
+ color:#fff;
+ text-align:center;
+ padding:60px 15px;
+}
 header h1{color:#f1c40f;margin:0}
 
-nav{background:#fff;padding:10px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.1)}
-nav a{margin:0 10px;color:#e74c3c;text-decoration:none;font-weight:600}
+/* NAV */
+nav{
+ background:#fff;
+ padding:10px;
+ text-align:center;
+ position:sticky;
+ top:0;
+ z-index:50;
+}
+nav a{
+ margin:0 8px;
+ color:#e74c3c;
+ text-decoration:none;
+ font-weight:600;
+ font-size:14px;
+}
 
-.container{max-width:1000px;margin:auto;padding:20px}
+/* CONTENT */
+.container{
+ padding:15px;
+}
 
-.section{background:#fff;margin-bottom:20px;padding:20px;border-radius:12px}
-.section h2{color:#e74c3c}
+.section{
+ background:#fff;
+ margin-bottom:15px;
+ padding:15px;
+ border-radius:12px;
+}
 
+.section h2{
+ color:#e74c3c;
+ font-size:18px;
+ margin-bottom:10px;
+}
+
+/* MENU */
 .menu-item{
  display:flex;
  justify-content:space-between;
- padding:12px 0;
- border-bottom:1px dashed #ddd;
+ align-items:center;
+ padding:12px;
+ border-radius:10px;
  cursor:pointer;
+ background:#fafafa;
+ margin-bottom:8px;
+}
+
+.menu-item span{
+ color:#e74c3c;
+ font-weight:600;
+}
+
+.menu-item:active{
+ transform:scale(0.98);
 }
 
 /* BADGE */
 .badge{
  position:fixed;
- top:15px;
- right:15px;
+ top:10px;
+ right:10px;
  background:#e74c3c;
  color:#fff;
- padding:10px 14px;
+ padding:8px 12px;
  border-radius:20px;
- cursor:pointer;
  z-index:200;
+ cursor:pointer;
+ font-size:14px;
 }
 
 /* OVERLAY */
@@ -48,27 +99,40 @@ nav a{margin:0 10px;color:#e74c3c;text-decoration:none;font-weight:600}
  inset:0;
  background:rgba(0,0,0,0.5);
  display:none;
- z-index:99;
+ z-index:90;
 }
 
-/* CARRELLO SLIDE */
+/* CARRELLO */
 #cartBox{
  position:fixed;
  top:0;
- right:-300px;
- width:300px;
+ right:-320px;
+ width:320px;
  height:100%;
  background:#fff;
- padding:20px;
- box-shadow:-5px 0 20px rgba(0,0,0,0.2);
+ padding:15px;
  transition:0.3s;
  z-index:100;
  display:flex;
  flex-direction:column;
 }
 
-#cartBox.active{
- right:0;
+/* MOBILE FULL SCREEN */
+@media(max-width:768px){
+ #cartBox{
+  width:100%;
+  right:-100%;
+ }
+ #cartBox.active{
+  right:0;
+ }
+}
+
+/* DESKTOP */
+@media(min-width:769px){
+ #cartBox.active{
+  right:0;
+ }
 }
 
 #cart-items{
@@ -81,6 +145,7 @@ nav a{margin:0 10px;color:#e74c3c;text-decoration:none;font-weight:600}
 .cart-item{
  display:flex;
  justify-content:space-between;
+ align-items:center;
  margin-bottom:10px;
 }
 
@@ -93,24 +158,31 @@ nav a{margin:0 10px;color:#e74c3c;text-decoration:none;font-weight:600}
  background:#e74c3c;
  color:#fff;
  border:none;
- width:25px;
- height:25px;
+ width:26px;
+ height:26px;
  border-radius:6px;
- cursor:pointer;
+ font-weight:bold;
 }
 
+/* BUTTONS */
 button{
- margin-top:8px;
  padding:10px;
  border:none;
  border-radius:8px;
- cursor:pointer;
+ margin-top:8px;
 }
 
 .clear{background:#ccc}
 .confirm{background:#e74c3c;color:#fff}
 
-footer{text-align:center;padding:20px;background:#222;color:#fff}
+/* FOOTER */
+footer{
+ text-align:center;
+ padding:15px;
+ background:#222;
+ color:#fff;
+ font-size:14px;
+}
 </style>
 </head>
 
@@ -120,7 +192,7 @@ footer{text-align:center;padding:20px;background:#222;color:#fff}
 <div id="overlay" onclick="toggleCart()"></div>
 
 <header>
-<h1>🍕 NOME DEL LOCALE</h1>
+<h1>🍕 Capasso</h1>
 <p>Tradizione Italiana</p>
 </header>
 
@@ -143,6 +215,7 @@ footer{text-align:center;padding:20px;background:#222;color:#fff}
 <h2>Pizze</h2>
 <div class="menu-item" onclick="addToCart('Margherita',7)">Margherita <span>€7</span></div>
 <div class="menu-item" onclick="addToCart('Diavola',9)">Diavola <span>€9</span></div>
+<div class="menu-item" onclick="addToCart('Bufalina',11)">Bufalina <span>€11</span></div>
 </div>
 
 <div class="section" id="primi">
@@ -172,91 +245,83 @@ footer{text-align:center;padding:20px;background:#222;color:#fff}
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 function toggleCart(){
-  const cartBox = document.getElementById('cartBox');
-  const overlay = document.getElementById('overlay');
+ const cartBox = document.getElementById('cartBox');
+ const overlay = document.getElementById('overlay');
 
-  cartBox.classList.toggle('active');
-
-  if(cartBox.classList.contains('active')){
-    overlay.style.display = 'block';
-  } else {
-    overlay.style.display = 'none';
-  }
+ cartBox.classList.toggle('active');
+ overlay.style.display = cartBox.classList.contains('active') ? 'block' : 'none';
 }
 
 function addToCart(name, price){
-  const existing = cart.find(i => i.name === name);
-  if(existing){
-    existing.qty++;
-  } else {
-    cart.push({name, price, qty:1});
-  }
-  saveCart();
-  updateCart();
+ const existing = cart.find(i => i.name === name);
+ if(existing){existing.qty++;}
+ else{cart.push({name, price, qty:1});}
+ saveCart();
+ updateCart();
 }
 
 function updateCart(){
-  const list = document.getElementById('cart-items');
-  list.innerHTML = '';
-  let total = 0;
-  let count = 0;
+ const list = document.getElementById('cart-items');
+ list.innerHTML = '';
+ let total = 0;
+ let count = 0;
 
-  cart.forEach((item, i)=>{
-    total += item.price * item.qty;
-    count += item.qty;
+ cart.forEach((item, i)=>{
+  total += item.price * item.qty;
+  count += item.qty;
 
-    const li = document.createElement('li');
-    li.className = 'cart-item';
+  const li = document.createElement('li');
+  li.className = 'cart-item';
 
-    li.innerHTML = `
-      <span>${item.name}</span>
-      <div class="qty-controls">
-        <button class="qty-btn" onclick="changeQty(${i},-1)">-</button>
-        <span>${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
-      </div>
-    `;
+  li.innerHTML = `
+    <span>${item.name}</span>
+    <div class="qty-controls">
+      <button class="qty-btn" onclick="changeQty(${i},-1)">-</button>
+      <span>${item.qty}</span>
+      <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+    </div>
+  `;
 
-    list.appendChild(li);
-  });
+  list.appendChild(li);
+ });
 
-  document.getElementById('total').innerText = "Totale: €" + total;
-  document.getElementById('cart-count').innerText = count + " 🛒";
+ document.getElementById('total').innerText = "Totale: €" + total;
+ document.getElementById('cart-count').innerText = count + " 🛒";
 }
 
 function changeQty(i, delta){
-  cart[i].qty += delta;
-  if(cart[i].qty <= 0) cart.splice(i,1);
-  saveCart();
-  updateCart();
+ cart[i].qty += delta;
+ if(cart[i].qty <= 0) cart.splice(i,1);
+ saveCart();
+ updateCart();
 }
 
 function saveCart(){
-  localStorage.setItem('cart', JSON.stringify(cart));
+ localStorage.setItem('cart', JSON.stringify(cart));
 }
 
 function clearCart(){
-  cart=[];
-  saveCart();
-  updateCart();
+ cart=[];
+ saveCart();
+ updateCart();
 }
 
 function confirmOrder(){
-  if(cart.length === 0){
-    alert("Carrello vuoto");
-    return;
-  }
+ if(cart.length === 0){
+  alert("Carrello vuoto");
+  return;
+ }
 
-  let text="Ordine:\n";
-  let total=0;
+ let text="Ordine:\n";
+ let total=0;
 
-  cart.forEach(item=>{
-    text += `${item.name} x${item.qty} €${item.price*item.qty}\n`;
-    total += item.price*item.qty;
-  });
+ cart.forEach(item=>{
+  text += `${item.name} x${item.qty} €${item.price*item.qty}\n`;
+  total += item.price*item.qty;
+ });
 
-  text += "Totale: €"+total;
-  alert(text);
+ text += "Totale: €"+total;
+ alert(text);
 }
 
 updateCart();
